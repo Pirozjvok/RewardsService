@@ -81,5 +81,29 @@ namespace RewardsService.Controllers
 
             return Ok(am);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateApplication([FromBody] CreateApplication application)
+        {
+            Application app = new Application()
+            {
+                Name = application.Name,
+                UserId = application.UserId,
+                Status = "На рассмотрении"
+            };
+
+            await _context.Applications.AddAsync(app);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet("{userid:int}")]
+        public async Task<IActionResult> GetApplications(int userid)
+        {
+            var applications = await _context.Applications.Where(x => x.UserId == userid).ToListAsync();
+
+            return Ok(new {applications = applications.Select(x => new ReadApplication() { Id = x.Id, Name = x.Name, UserId = userid, Status = x.Status}).ToList()});
+        }
     }
 }
